@@ -53,12 +53,11 @@ void app::processInput(GLFWwindow* window)
 app::~app()
 {
     glfwTerminate();
-    delete particles;
 }
 
-Particles* app::InitParticles(std::shared_ptr<Logger> log)
+std::unique_ptr<Particles> app::InitParticles(std::shared_ptr<Logger> log)
 {
-    Particles* particles_obj = new Particles;
+    std::unique_ptr<Particles> particles_obj = std::make_unique<Particles>();
     particles_obj->Init(log);
     return particles_obj;
 }
