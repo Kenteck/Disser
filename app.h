@@ -15,6 +15,7 @@ class app
 	void InitGLFW();
 	void InitGLAD();
 	void InitOpenGL();
+	Particles* InitParticles(std::shared_ptr<Logger>);
 
 	// OpenGl functions
 	void static framebuffer_size_callback(GLFWwindow*, int, int);
@@ -22,10 +23,11 @@ class app
 
 public:
 	void init() {
-		log.Init();
+		log->Init();
 		InitGLFW();
 		InitGLAD();
 		InitOpenGL();
+		particles = InitParticles(log);
 	}
 
 	void run();
@@ -33,11 +35,11 @@ public:
 	~app();
 
 	// Logger
-	Logger log;
-
+	std::shared_ptr<Logger> log = std::make_shared<Logger>();
+	
 	// Window
 	GLFWwindow* window = nullptr;
 
 	// Particles
-
+	Particles* particles = nullptr;
 };

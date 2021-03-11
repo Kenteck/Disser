@@ -1,9 +1,10 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
+#include <memory>
+#include "Logger.h"
 // Consts
-#define NUMBER_OF_PARTICLES 3
+
 
 class Particles
 {
@@ -13,8 +14,12 @@ class Particles
          0.0f,  0.5f, 0.0f
     };
     unsigned int VAO, VBO;
+    unsigned int particleShaderProgram;
 public:
-    void Init();
+    Particles() {}
+    std::shared_ptr<Logger> log;
+    void Init(std::shared_ptr<Logger>);
     void Render();
+    ~Particles();
 };
 
