@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h" />
+    <ClInclude Include="cuda_func.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Particles.h" />
     <ClInclude Include="Shader.h" />

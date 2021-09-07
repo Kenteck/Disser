@@ -1,8 +1,9 @@
 #include "app.h"
-
+#include "cuda_func.h"
 
 int main()
 {
+    /*
     app application;
     try {
         application.init();
@@ -12,5 +13,7 @@ int main()
         std::cerr << "I TOLD YOU: " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
+    */
+    CUDA::helloWorld();
     return EXIT_SUCCESS;
 } 
