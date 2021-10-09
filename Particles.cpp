@@ -1,32 +1,32 @@
 #include "Particles.h"
 
-void Particles::Init(std::shared_ptr<Logger> log)
+void Particles::Init()
 {
-	this->log = log;
 	log->LogInfo("Setup Particles in GPU");
 	log->LogInfo("Setup Particles in GPU: Vertices");
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glBindVertexArray(VAO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	
 	log->LogInfo("Setup Particles in GPU: Vertices: finished");
 
 	log->LogInfo("Setup Particles in GPU: Shaders");
-	particleShaderProgram = InitParticleShader(log);
+	//particleShaderProgram = InitParticleShader(log);
 	log->LogInfo("Setup Particles in GPU: Shaders: finished");
 
-	log->LogInfo("Setup Particles in GPU: finished");
+	log->LogInfo("Setup Particles in GPU: finished");\
+	
 }
 
 void Particles::Render()
 {
-	glUseProgram(particleShaderProgram);
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glBindVertexArray(0);
+	//glMatrixMode(GL_MODELVIEW);
+
+	glTranslatef(0.0f, 0.0f, -1.0f);
+	//glPopMatrix()
+	//gluLookAt(0.0f, 0.0f, 10.0f,
+	 //   0.0f, 0.0f, 0.0f,
+	 //   0.0f, 1.0f, 0.0f);
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glutWireCube(0.25);
 }
 
 Particles::~Particles()

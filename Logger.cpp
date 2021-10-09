@@ -1,5 +1,7 @@
 #include "Logger.h"
 
+Logger* Logger::logger;
+
 void Logger::Init() {
 	if (std::filesystem::exists(Logger::m_file_name))
 		std::filesystem::remove(Logger::m_file_name);
@@ -81,5 +83,6 @@ void Logger::Log(Severity severity, std::string report) {
 }
 
 Logger::~Logger() {
+
 	Logger::Flush();
 }

@@ -12,13 +12,23 @@ class Logger
 		Error
 	};
 
+	static Logger* logger;
+
 public:
 	void LogInfo(std::string);
 	void LogDebug(std::string);
 	void LogWarning(std::string);
 	void LogError(std::string);
 
+	static Logger* GetLogger() {
+		if (!logger) {
+			logger = new Logger;
+		}
+		return logger;
+	}
+
 private:
+	Logger() {};
 	unsigned GetSeverityMaxBufferCount(Severity);
 	const char* GetSeverityId(Severity);
 	const char* m_Name;

@@ -42,12 +42,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Disser\cpp_libraries\glad\include;D:\Disser\cpp_libraries\glfw-3.3.2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Disser\cpp_libraries\glew-2.2.0\lib\Debug\x64;D:\Disser\cpp_libraries\Libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Disser\cpp_libraries\freeglut-3.0.0-2\freeglut\include;D:\Disser\cpp_libraries\glew-2.2.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Disser\cpp_libraries\glew-2.2.0\lib\Debug\x64;D:\Disser\cpp_libraries\freeglut-3.0.0-2\freeglut\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\Disser\cpp_libraries\glad\include;D:\Disser\cpp_libraries\glfw-3.3.2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Disser\cpp_libraries\glew-2.2.0\lib\Debug\x64;D:\Disser\cpp_libraries\Libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Disser\cpp_libraries\freeglut-3.0.0-2\freeglut\include;D:\Disser\cpp_libraries\glew-2.2.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Disser\cpp_libraries\glew-2.2.0\lib\Debug\x64;D:\Disser\cpp_libraries\freeglut-3.0.0-2\freeglut\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -59,7 +59,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32d.lib;freeglut.lib;opengl32.lib;cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
@@ -79,7 +79,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32d.lib;freeglut.lib;opengl32.lib;cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
@@ -89,18 +89,20 @@
     <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\cpp_libraries\glad\src\glad.c" />
     <ClCompile Include="app.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Particles.cpp" />
+    <ClCompile Include="Ring.cpp" />
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h" />
+    <ClInclude Include="configs.h" />
     <ClInclude Include="cuda_func.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Particles.h" />
+    <ClInclude Include="Ring.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

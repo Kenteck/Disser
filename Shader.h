@@ -1,6 +1,8 @@
 #pragma once
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "GL/glew.h"
+#include "GL/wglew.h"
+#include "GL/freeglut.h"
 #include "Logger.h"
 
-unsigned int InitParticleShader(std::shared_ptr<Logger>);
+//unsigned int InitParticleShader(Logger*);
+unsigned int InitRingShader(Logger*);
