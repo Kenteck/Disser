@@ -50,6 +50,7 @@ void app::InitOpenGL()
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboardfunc);
     glutCloseFunc(GlutCleanup);
+    glutIdleFunc(display);
 }
 
 void app::InitCamera()
@@ -61,10 +62,12 @@ void app::InitCamera()
 
     float ratio = W_WIDTH * 1.0 / W_HEIGHT;
 
-    gluPerspective(45.0f, ratio, 0.1f, 100.0f);
+    gluPerspective(60.0f, ratio, 0.1f, 100.0f);
     glViewport(0, 0, W_WIDTH, W_HEIGHT);
 
+    
     glMatrixMode(GL_MODELVIEW);
+    
     log->LogInfo("Camera initialization: finished");
 }
 void app::InitParticles()
@@ -102,8 +105,10 @@ void display()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glLoadIdentity();
 
+    glLoadIdentity();
+    glTranslatef(0.0f, 0.0f, -2.5f);
+    
     ring->Render();
     particles->Render();
     

@@ -4,5 +4,5 @@
 #include "GL/freeglut.h"
 #include "Logger.h"
 
-//unsigned int InitParticleShader(Logger*);
+unsigned int InitParticleShader(Logger*);
 unsigned int InitRingShader(Logger*);
