@@ -5,9 +5,13 @@
 #include "thrust/for_each.h"
 #include "thrust/iterator/zip_iterator.h"
 #include "helper_math.h"
+#include "configs.h"
 #include "kernel.cuh"
 
 typedef unsigned int uint;
+
+// simulation parameters in constant memory
+__constant__ struct Configuration params;
 
 struct integrate_functor
 {
@@ -27,23 +31,22 @@ struct integrate_functor
 
         pos += vel * deltaTime;
 
-
-        if (pos.x > 1.4f)
+        if (pos.x > params.m_radius)
         {
             vel.x *= -1;
         }
 
-        if (pos.x < -1.4f)
+        if (pos.x < -params.m_radius)
         {
             vel.x *= -1;
         }
 
-        if (pos.y > 1.4f)
+        if (pos.y > params.m_radius)
         {
             vel.y *= -1;
         }
 
-        if (pos.y < -1.4f)
+        if (pos.y < -params.m_radius)
         {
             vel.y *= -1;
         }

@@ -47,4 +47,4 @@ extern "C" void registerGLBufferObject(unsigned int vbo, struct cudaGraphicsReso
 extern "C" void unregisterGLBufferObject(struct cudaGraphicsResource* cuda_vbo_resource);
 extern "C" void* mapGLBufferObject(struct cudaGraphicsResource** cuda_vbo_resource);
 extern "C" void unmapGLBufferObject(struct cudaGraphicsResource* cuda_vbo_resource);
-extern "C" void integrateSystem(float* pos, float* vel, float deltaTime, unsigned int numParticles);
+extern "C" void setParameters(Configuration*);

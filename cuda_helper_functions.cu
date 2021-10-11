@@ -20,9 +20,6 @@ void check(T result, char const* const func, const char* const file,
 
 #define checkCudaErrors(val) check((val), #val, __FILE__, __LINE__)
 
-// simulation parameters in constant memory
-__constant__ Configuration params;
-
 typedef unsigned int uint;
 
 extern "C"
@@ -90,4 +87,11 @@ extern "C"
     {
         checkCudaErrors(cudaGraphicsUnmapResources(1, &cuda_vbo_resource, 0));
     }
+    
+    void setParameters(Configuration* hostParams)
+    {
+        // copy parameters to constant memory
+        cudaMemcpyToSymbol("params", hostParams, sizeof(Configuration));
+    }
+    
 }

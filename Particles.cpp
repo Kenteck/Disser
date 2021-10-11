@@ -7,11 +7,23 @@ void Particles::Init()
 	log->LogInfo("Setup Particles");
 	
 	log->LogInfo("Setup Particles: Vertices");
-	m_vertices[0] = 0.0f;
-	m_vertices[1] = 1.4f;
+	srand(time(NULL));
+	for (size_t i = 0; i < configs.m_NumberOfParticles; i++) {
+		float u = (float)rand() / (RAND_MAX);
+		float v = (float)rand() / (RAND_MAX);
+		float theta = u * 2.0 * configs.m_PI;
+		float phi = acos(2.0 * v - 1.0);
+		float sinTheta = sin(theta);
+		float cosTheta = cos(theta);
+		float sinPhi = sin(phi);
+		//Random coordinates within sphere
+		m_vertices[2 * i] = cbrt((float)rand() / (RAND_MAX)) * configs.m_radius * sinPhi * cosTheta;
+		m_vertices[2 * i + 1] = cbrt((float)rand() / (RAND_MAX)) * configs.m_radius * sinPhi * sinTheta;
+		//Random velocities
+		m_velocity[2 * i] = (float)rand() / (RAND_MAX) * 2 - 1;
+		m_velocity[2 * i + 1] = (float)rand() / (RAND_MAX) * 2 - 1;
+	}
 
-	m_velocity[0] = 1.0f;
-	m_velocity[1] = -1.0f;
 	log->LogInfo("Setup Particles: Vertices: finished");
 
 	
@@ -38,7 +50,7 @@ void Particles::InitCUDA()
 
 	SetArray(POSITION, m_vertices, 0, configs.m_NumberOfParticles);
 	SetArray(VELOCITY, m_velocity, 0, configs.m_NumberOfParticles);
-
+	setParameters(&configs);
 	log->LogInfo("Setup Particles CUDA: finished");
 }
 
@@ -57,7 +69,7 @@ void Particles::Render()
 	Move();
 
 	glColor3f(1, 1, 1);
-	glPointSize(10.0f);
+	glPointSize(configs.m_pointSize);
 	
 	glUseProgram(particleShaderProgram);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -69,12 +81,6 @@ void Particles::Render()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDisableClientState(GL_VERTEX_ARRAY);
 
-	/*
-	glBufferSubData(GL_ARRAY_BUFFER, 0, configs.m_NumberOfParticles * 2 * sizeof(float), m_vertices);
-	glBindVertexArray(VAO);
-	glPointSize(10.0f);
-	glDrawArrays(GL_POINTS, 0, configs.m_NumberOfParticles);
-	glBindVertexArray(0);*/
 	glUseProgram(0);
 }
 
