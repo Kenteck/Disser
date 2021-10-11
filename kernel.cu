@@ -33,20 +33,20 @@ struct integrate_functor
 
         if (dot(pos, pos) >= params.m_radius * params.m_radius) {
             float SQRT = (dot(pos, vel) / dot(vel, vel)) * (dot(pos, vel) / dot(vel, vel)) + ((params.m_radius * params.m_radius - dot(pos, pos)) / dot(vel, vel));
-            float dt1 = fabs(sqrt(fabs(SQRT)) - dot(pos, vel) / dot(vel, vel));
+            float dtPart = fabs(sqrt(fabs(SQRT)) - dot(pos, vel) / dot(vel, vel));
             
-            float2 pos_1 = pos + vel * dt1;
-            float2 vel_1 = vel;
+            float2 posTMP = pos + vel * dtPart;
+            float2 velTMP = vel;
 
-            float2 nx = -pos_1 / params.m_radius;
+            float2 normal = -posTMP / params.m_radius;
 
-            float vel_n = dot(vel_1, nx);
+            float velNormal = dot(velTMP, normal);
 
-            float2 vel_1_n = vel_1 - 2 * nx * vel_n;
+            float2 velPart = velTMP - 2 * normal * velNormal;
 
-            vel = vel_1_n;
+            vel = velPart;
 
-            pos = pos_1 + vel * dt1;
+            pos = posTMP + vel * dtPart;
         }
 
         // store new position and velocity
