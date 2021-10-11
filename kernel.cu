@@ -31,24 +31,22 @@ struct integrate_functor
 
         pos += vel * deltaTime;
 
-        if (pos.x > params.m_radius)
-        {
-            vel.x *= -1;
-        }
+        if (dot(pos, pos) >= params.m_radius * params.m_radius) {
+            float SQRT = (dot(pos, vel) / dot(vel, vel)) * (dot(pos, vel) / dot(vel, vel)) + ((params.m_radius * params.m_radius - dot(pos, pos)) / dot(vel, vel));
+            float dt1 = fabs(sqrt(fabs(SQRT)) - dot(pos, vel) / dot(vel, vel));
+            
+            float2 pos_1 = pos + vel * dt1;
+            float2 vel_1 = vel;
 
-        if (pos.x < -params.m_radius)
-        {
-            vel.x *= -1;
-        }
+            float2 nx = -pos_1 / params.m_radius;
 
-        if (pos.y > params.m_radius)
-        {
-            vel.y *= -1;
-        }
+            float vel_n = dot(vel_1, nx);
 
-        if (pos.y < -params.m_radius)
-        {
-            vel.y *= -1;
+            float2 vel_1_n = vel_1 - 2 * nx * vel_n;
+
+            vel = vel_1_n;
+
+            pos = pos_1 + vel * dt1;
         }
 
         // store new position and velocity
