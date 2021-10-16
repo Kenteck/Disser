@@ -20,8 +20,8 @@ void Particles::Init()
 		m_vertices[2 * i] = cbrt((float)rand() / (RAND_MAX)) * configs.m_radius * sinPhi * cosTheta;
 		m_vertices[2 * i + 1] = cbrt((float)rand() / (RAND_MAX)) * configs.m_radius * sinPhi * sinTheta;
 		//Random velocities
-		m_velocity[2 * i] = (float)rand() / (RAND_MAX) * 2 - 1;
-		m_velocity[2 * i + 1] = (float)rand() / (RAND_MAX) * 2 - 1;
+		m_velocity[2 * i] = ((float)rand() / (RAND_MAX) * 2 - 1) * configs.m_maxVel;
+		m_velocity[2 * i + 1] = ((float)rand() / (RAND_MAX) * 2 - 1) * configs.m_maxVel;
 	}
 
 	log->LogInfo("Setup Particles: Vertices: finished");

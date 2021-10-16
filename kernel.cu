@@ -303,8 +303,7 @@ float2 collideCell(int2 gridPos,
         uint endIndex = cellEnd[gridHash];
 
         for (uint j = startIndex; j < endIndex; j++)
-        {
-            if (j != index)                // check not colliding with self
+        {            // check not colliding with self
             {
                 float dist = length(oldPos[j] - oldPos[index]);
                 if (dist <= params.m_interactionDistance) {
@@ -327,7 +326,7 @@ void collideD(float2* newVel,               // output: new velocity
     uint* gridParticleIndex,    // input: sorted particle indices
     uint* cellStart,
     uint* cellEnd,
-    uint    numParticles)
+    uint  numParticles)
 {
     uint index = __mul24(blockIdx.x, blockDim.x) + threadIdx.x;
 
@@ -343,19 +342,16 @@ void collideD(float2* newVel,               // output: new velocity
     // examine neighbouring cells
     float2 force = make_float2(0.0f, 0.0f);
 
-    for (int z = -1; z <= 1; z++)
+    for (int y = -1; y <= 1; y++)
     {
-        for (int y = -1; y <= 1; y++)
+        for (int x = -1; x <= 1; x++)
         {
-            for (int x = -1; x <= 1; x++)
-            {
-                int2 neighbourPos = gridPos + make_int2(x, y);
-                force += collideCell(neighbourPos, index, oldPos, oldVel, cellStart, cellEnd);
-            }
+            int2 neighbourPos = gridPos + make_int2(x, y);
+            force += collideCell(neighbourPos, index, oldPos, oldVel, cellStart, cellEnd);
         }
     }
 
-    if (length(force) > 1e-4) {
+    if (length(force) > 1e-5) {
         float HypotForce = length(force);
         float2 Ort = force / HypotForce;
 
@@ -381,7 +377,7 @@ void collide(float* newVel,
 
     // thread per particle
     uint numThreads, numBlocks;
-    computeGridSize(numParticles, 64, numBlocks, numThreads);
+    computeGridSize(numParticles, 256, numBlocks, numThreads);
 
     // execute the kernel
     collideD << < numBlocks, numThreads >> > ((float2*)newVel,
