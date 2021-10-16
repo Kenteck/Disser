@@ -20,6 +20,19 @@ class Particles
 
     struct cudaGraphicsResource* m_cuda_posvbo_resource; // handles OpenGL-CUDA exchange
 
+    // grid data for sorting method
+    uint* m_dGridParticleHash; // grid hash value for each particle
+    uint* m_dGridParticleIndex;// particle index for each particle
+    uint* m_dCellStart;        // index of start of each cell in sorted list
+    uint* m_dCellEnd;          // index of end of cell
+
+    uint* m_hParticleHash;
+    uint* m_hCellStart;
+    uint* m_hCellEnd;
+
+    float* m_dSortedPos;
+    float* m_dSortedVel;
+
     enum ParticleArray
     {
         POSITION,

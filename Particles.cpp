@@ -48,6 +48,21 @@ void Particles::InitCUDA()
 
 	allocateArray((void**)&m_dVel, memSize);
 
+	m_hCellStart = new uint[configs.m_numGridCells];
+	memset(m_hCellStart, 0, configs.m_numGridCells * sizeof(uint));
+
+	m_hCellEnd = new uint[configs.m_numGridCells];
+	memset(m_hCellEnd, 0, configs.m_numGridCells * sizeof(uint));
+
+	allocateArray((void**)&m_dSortedPos, memSize);
+	allocateArray((void**)&m_dSortedVel, memSize);
+
+	allocateArray((void**)&m_dGridParticleHash, configs.m_NumberOfParticles * sizeof(uint));
+	allocateArray((void**)&m_dGridParticleIndex, configs.m_NumberOfParticles * sizeof(uint));
+
+	allocateArray((void**)&m_dCellStart, configs.m_numGridCells * sizeof(uint));
+	allocateArray((void**)&m_dCellEnd, configs.m_numGridCells * sizeof(uint));
+
 	SetArray(POSITION, m_vertices, 0, configs.m_NumberOfParticles);
 	SetArray(VELOCITY, m_velocity, 0, configs.m_NumberOfParticles);
 	setParameters(&configs);
@@ -96,6 +111,42 @@ void Particles::Move()
 		m_dVel,
 		configs.dt,
 		configs.m_NumberOfParticles);
+	
+	// calculate grid hash
+	calcHash(
+		m_dGridParticleHash,
+		m_dGridParticleIndex,
+		dPos,
+		configs.m_NumberOfParticles);
+
+	//// sort particles based on hash
+	sortParticles(m_dGridParticleHash, m_dGridParticleIndex, configs.m_NumberOfParticles);
+
+	// reorder particle arrays into sorted order and
+// find start and end of each cell
+	reorderDataAndFindCellStart(
+		m_dCellStart,
+		m_dCellEnd,
+		m_dSortedPos,
+		m_dSortedVel,
+		m_dGridParticleHash,
+		m_dGridParticleIndex,
+		dPos,
+		m_dVel,
+		configs.m_NumberOfParticles,
+		configs.m_numGridCells);
+
+	// process collisions
+	collide(
+		m_dVel,
+		m_dSortedPos,
+		m_dSortedVel,
+		m_dGridParticleIndex,
+		m_dCellStart,
+		m_dCellEnd,
+		configs.m_NumberOfParticles,
+		configs.m_numGridCells);
+
 
 	unmapGLBufferObject(m_cuda_posvbo_resource);
 }
