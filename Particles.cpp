@@ -19,6 +19,7 @@ void Particles::Init()
 		//Random coordinates within sphere
 		m_vertices[2 * i] = cbrt((float)rand() / (RAND_MAX)) * configs.m_radius * sinPhi * cosTheta;
 		m_vertices[2 * i + 1] = cbrt((float)rand() / (RAND_MAX)) * configs.m_radius * sinPhi * sinTheta;
+
 		//Random velocities
 		m_velocity[2 * i] = ((float)rand() / (RAND_MAX) * 2 - 1) * configs.m_maxVel;
 		m_velocity[2 * i + 1] = ((float)rand() / (RAND_MAX) * 2 - 1) * configs.m_maxVel;
@@ -63,8 +64,11 @@ void Particles::InitCUDA()
 	allocateArray((void**)&m_dCellStart, configs.m_numGridCells * sizeof(uint));
 	allocateArray((void**)&m_dCellEnd, configs.m_numGridCells * sizeof(uint));
 
+	fillColors();
+	
 	SetArray(POSITION, m_vertices, 0, configs.m_NumberOfParticles);
 	SetArray(VELOCITY, m_velocity, 0, configs.m_NumberOfParticles);
+
 	setParameters(&configs);
 	log->LogInfo("Setup Particles CUDA: finished");
 }
@@ -79,6 +83,36 @@ void Particles::createVBO(unsigned int size)
 	log->LogInfo("Setup VBOs: finished");
 }
 
+void Particles::fillColors()
+{
+	log->LogInfo("Setup Colors: started");
+	createColorVBO(configs.m_NumberOfParticles * 3 * sizeof(float));
+	registerGLBufferObject(colorVBO, &m_cuda_colorvbo_resource);
+
+	glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+	float* data = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+
+	for (uint i = 0; i < configs.m_NumberOfParticles; i++)
+	{
+		// The faster particles are red, the slower are blue
+ 		data[3 * i] = hypot(m_velocity[2 * i], m_velocity[2 * i + 1]) / configs.m_maxVel;
+		data[3 * i + 1] = 0.1f;
+		data[3 * i + 2] = 255 - data[3 * i];
+	}
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+	log->LogInfo("Setup Colors: finished");
+}
+
+void Particles::createColorVBO(unsigned int size)
+{
+	log->LogInfo("Setup Color VBO: started");
+	glGenBuffers(1, &colorVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+	glBufferData(GL_ARRAY_BUFFER, size, 0, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	log->LogInfo("Setup Color VBO: finished");
+}
+
 void Particles::Render()
 {
 	Move();
@@ -86,15 +120,20 @@ void Particles::Render()
 	glColor3f(1, 1, 1);
 	glPointSize(configs.m_pointSize);
 	
-	glUseProgram(particleShaderProgram);
+	//glUseProgram(particleShaderProgram);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexPointer(2, GL_FLOAT, 0, 0);
 	glEnableClientState(GL_VERTEX_ARRAY);
+
+	glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+	glColorPointer(3, GL_FLOAT, 0, 0);
+	glEnableClientState(GL_COLOR_ARRAY);
 
 	glDrawArrays(GL_POINTS, 0, configs.m_NumberOfParticles);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 
 	glUseProgram(0);
 }

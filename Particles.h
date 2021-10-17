@@ -9,16 +9,18 @@
 class Particles
 {
 
-    unsigned int VAO, VBO;
+    unsigned int VAO, VBO, colorVBO;
     unsigned int particleShaderProgram = NULL;
     float* m_vertices = new float[configs.m_NumberOfParticles * 2];
     float* m_velocity = new float[configs.m_NumberOfParticles * 2];
+    float* m_colors = new float[configs.m_NumberOfParticles * 3];
 
     //GPU data
     float* m_dVel;
     float* m_dPos;
 
     struct cudaGraphicsResource* m_cuda_posvbo_resource; // handles OpenGL-CUDA exchange
+    struct cudaGraphicsResource* m_cuda_colorvbo_resource;
 
     // grid data for sorting method
     uint* m_dGridParticleHash; // grid hash value for each particle
@@ -36,7 +38,7 @@ class Particles
     enum ParticleArray
     {
         POSITION,
-        VELOCITY,
+        VELOCITY
     };
 
 public:
@@ -45,6 +47,8 @@ public:
     void Init();
     void InitCUDA();
     void createVBO(unsigned int);
+    void createColorVBO(unsigned int);
+    void fillColors();
     void Render();
     void Move();
     void SetArray(ParticleArray, const float*, int, int);
