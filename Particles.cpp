@@ -64,12 +64,15 @@ void Particles::InitCUDA()
 	allocateArray((void**)&m_dCellStart, configs.m_numGridCells * sizeof(uint));
 	allocateArray((void**)&m_dCellEnd, configs.m_numGridCells * sizeof(uint));
 
+	allocateArray((void**)&m_dRandom, configs.m_NumberOfParticles * sizeof(curandState));
+
 	fillColors();
 	
 	SetArray(POSITION, m_vertices, 0, configs.m_NumberOfParticles);
 	SetArray(VELOCITY, m_velocity, 0, configs.m_NumberOfParticles);
 
 	setParameters(&configs);
+
 	log->LogInfo("Setup Particles CUDA: finished");
 }
 
@@ -184,7 +187,8 @@ void Particles::Move()
 		m_dCellStart,
 		m_dCellEnd,
 		configs.m_NumberOfParticles,
-		configs.m_numGridCells);
+		configs.m_numGridCells,
+		m_dRandom);
 
 
 	unmapGLBufferObject(m_cuda_posvbo_resource);

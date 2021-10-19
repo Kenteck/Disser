@@ -8,6 +8,8 @@
 #include "helper_math.h"
 #include "configs.h"
 #include "kernel.cuh"
+#include <curand_kernel.h>
+#include <curand.h>
 #include <cooperative_groups.h>
 
 namespace cg = cooperative_groups;
@@ -261,7 +263,7 @@ void reorderDataAndFindCellStart(uint* cellStart,
     uint   numCells)
 {
     uint numThreads, numBlocks;
-    computeGridSize(numParticles, 256, numBlocks, numThreads);
+    computeGridSize(numParticles, 1024, numBlocks, numThreads);
 
     // set all cells to empty
     checkCudaErrors(cudaMemset(cellStart, 0xffffffff, numCells * sizeof(uint)));
@@ -303,14 +305,11 @@ float2 collideCell(int2 gridPos,
         uint endIndex = cellEnd[gridHash];
 
         for (uint j = startIndex; j < endIndex; j++)
-        {            // check not colliding with self
-            {
-                float dist = length(oldPos[j] - oldPos[index]);
-                if (dist <= params.m_interactionDistance) {
-                    float Hypot = length(oldVel[j]);
-                    force += oldVel[j] / Hypot;
-                }
-
+        {           
+            float dist = length(oldPos[j] - oldPos[index]);
+            if (dist <= params.m_interactionDistance) {
+                float Hypot = length(oldVel[j]);
+                force += oldVel[j] / Hypot;
             }
         }
     }
@@ -326,11 +325,14 @@ void collideD(float2* newVel,               // output: new velocity
     uint* gridParticleIndex,    // input: sorted particle indices
     uint* cellStart,
     uint* cellEnd,
-    uint  numParticles)
+    uint  numParticles,
+    curandState* states)
 {
     uint index = __mul24(blockIdx.x, blockDim.x) + threadIdx.x;
 
     if (index >= numParticles) return;
+
+    curand_init(index, index, 0, &states[index]);   // 	Initialize CURAND
 
     // read particle data from sorted arrays
     float2 pos = oldPos[index];
@@ -351,11 +353,27 @@ void collideD(float2* newVel,               // output: new velocity
         }
     }
 
-    if (length(force) > 1e-5) {
+    if (length(force) > 1e-5) { 
+        force.x += params.m_noice * (1 - 2 * ((float)curand_normal(&states[index])));
+        force.y += params.m_noice * (1 - 2 * ((float)curand_normal(&states[index])));
         float HypotForce = length(force);
-        float2 Ort = force / HypotForce;
+        
+        float2 Ort= force / HypotForce;
 
         float HypotVelocity = length(vel);
+
+        vel = Ort * HypotVelocity;
+    }
+    else {
+        float HypotVelocity = length(vel);
+
+        vel.x += params.m_noice * (1 - 2 * ((float)curand_normal(&states[index])));
+        vel.y += params.m_noice * (1 - 2 * ((float)curand_normal(&states[index])));
+        
+        float HypotForce = length(force);
+
+        float2 Ort = vel / HypotForce;
+
         vel = Ort * HypotVelocity;
     }
 
@@ -372,12 +390,13 @@ void collide(float* newVel,
     uint* cellStart,
     uint* cellEnd,
     uint   numParticles,
-    uint   numCells)
+    uint   numCells,
+    curandState* states)
 {
 
     // thread per particle
     uint numThreads, numBlocks;
-    computeGridSize(numParticles, 256, numBlocks, numThreads);
+    computeGridSize(numParticles, 1024, numBlocks, numThreads);
 
     // execute the kernel
     collideD << < numBlocks, numThreads >> > ((float2*)newVel,
@@ -386,7 +405,8 @@ void collide(float* newVel,
         gridParticleIndex,
         cellStart,
         cellEnd,
-        numParticles);
+        numParticles,
+        states);
 
     // check if kernel invocation generated an error
     getLastCudaError("Kernel execution failed");

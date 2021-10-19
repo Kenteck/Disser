@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "Shader.h"
 #include "configs.h"
+#include <curand_kernel.h>
 
 class Particles
 {
@@ -34,6 +35,8 @@ class Particles
 
     float* m_dSortedPos;
     float* m_dSortedVel;
+
+    curandState* m_dRandom;
 
     enum ParticleArray
     {
