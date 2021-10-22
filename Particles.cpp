@@ -6,6 +6,19 @@ void Particles::Init()
 {
 	log->LogInfo("Setup Particles");
 	
+	InitVertices();
+	InitVelocities();
+	
+	log->LogInfo("Setup Particles: Shaders");
+	particleShaderProgram = InitParticleShader(log);
+	log->LogInfo("Setup Particles: Shaders: finished");
+
+	log->LogInfo("Setup Particles: finished");
+	InitCUDA();
+}
+
+void Particles::InitVertices()
+{
 	log->LogInfo("Setup Particles: Vertices");
 	srand(time(NULL));
 	for (size_t i = 0; i < configs.m_NumberOfParticles; i++) {
@@ -19,21 +32,52 @@ void Particles::Init()
 		//Random coordinates within sphere
 		m_vertices[2 * i] = cbrt((float)rand() / (RAND_MAX)) * configs.m_radius * sinPhi * cosTheta;
 		m_vertices[2 * i + 1] = cbrt((float)rand() / (RAND_MAX)) * configs.m_radius * sinPhi * sinTheta;
-
-		//Random velocities
-		m_velocity[2 * i] = ((float)rand() / (RAND_MAX) * 2 - 1) * configs.m_maxVel;
-		m_velocity[2 * i + 1] = ((float)rand() / (RAND_MAX) * 2 - 1) * configs.m_maxVel;
 	}
 
 	log->LogInfo("Setup Particles: Vertices: finished");
+}
 
-	
-	log->LogInfo("Setup Particles: Shaders");
-	particleShaderProgram = InitParticleShader(log);
-	log->LogInfo("Setup Particles: Shaders: finished");
+void Particles::InitVelocities()
+{
+	log->LogInfo("Setup Particles: Velocities");
+	std::default_random_engine generator;
+	switch (configs.m_typeDistribution)
+	{
+		case Configuration::VelocityDistribution::UNIFORM:
+		{
+			std::uniform_real_distribution<float> uni_distribution(0, 2 * configs.m_mean);
+			for (size_t i = 0; i < configs.m_NumberOfParticles; i++) {
+				m_module[i] = uni_distribution(generator);
+			}
+		}
 
-	log->LogInfo("Setup Particles: finished");
-	InitCUDA();
+		case Configuration::VelocityDistribution::POISSON:
+		{
+			std::poisson_distribution<int> poi_distribution(configs.m_mean);
+			for (size_t i = 0; i < configs.m_NumberOfParticles; i++) {
+				m_module[i] = poi_distribution(generator);
+			}
+		}
+
+		case Configuration::VelocityDistribution::NORMAL:
+		{
+			std::normal_distribution<float> nor_distribution(configs.m_mean, configs.m_sttDev);
+			for (size_t i = 0; i < configs.m_NumberOfParticles; i++) {
+				m_module[i] = nor_distribution(generator);
+			}
+		}
+	}
+
+	for (int i = 0; i < configs.m_NumberOfParticles; i++) {
+		double phi = 2. * configs.m_PI * ((double)(rand()) / RAND_MAX);
+		m_velocity[2 * i] = m_module[i] * cos(phi);
+		m_velocity[2 * i + 1] = m_module[i] * sin(phi);
+
+		if (local_max < m_module[i]) local_max = m_module[i];
+		if (local_min > m_module[i]) local_min = m_module[i];
+	}
+		
+	log->LogInfo("Setup Particles: Velocities: finished");
 }
 
 void Particles::InitCUDA()
@@ -98,9 +142,10 @@ void Particles::fillColors()
 	for (uint i = 0; i < configs.m_NumberOfParticles; i++)
 	{
 		// The faster particles are red, the slower are blue
- 		data[3 * i] = hypot(m_velocity[2 * i], m_velocity[2 * i + 1]) / configs.m_maxVel;
+ 		//data[3 * i] = hypot(m_velocity[2 * i], m_velocity[2 * i + 1]) / local_max;
+		data[3 * i] = (m_module[i] - local_min) / (local_max - local_min);
 		data[3 * i + 1] = 0.1f;
-		data[3 * i + 2] = 255 - data[3 * i];
+		data[3 * i + 2] = 1.0f - data[3 * i];
 	}
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 	log->LogInfo("Setup Colors: finished");

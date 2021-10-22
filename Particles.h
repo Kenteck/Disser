@@ -6,7 +6,7 @@
 #include "Shader.h"
 #include "configs.h"
 #include <curand_kernel.h>
-
+#include <random>
 class Particles
 {
 
@@ -14,7 +14,11 @@ class Particles
     unsigned int particleShaderProgram = NULL;
     float* m_vertices = new float[configs.m_NumberOfParticles * 2];
     float* m_velocity = new float[configs.m_NumberOfParticles * 2];
+    float* m_module = new float[configs.m_NumberOfParticles];
     float* m_colors = new float[configs.m_NumberOfParticles * 3];
+
+    float local_max = -configs.m_mean;
+    float local_min = configs.m_mean;
 
     //GPU data
     float* m_dVel;
@@ -48,6 +52,8 @@ public:
     Particles() {}
     Logger* log = Logger::GetLogger();
     void Init();
+    void InitVertices();
+    void InitVelocities();
     void InitCUDA();
     void createVBO(unsigned int);
     void createColorVBO(unsigned int);
