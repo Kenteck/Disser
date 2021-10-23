@@ -45,7 +45,7 @@ void Particles::InitVelocities()
 	{
 		case Configuration::VelocityDistribution::UNIFORM:
 		{
-			std::uniform_real_distribution<float> uni_distribution(0, 2 * configs.m_mean);
+			std::uniform_real_distribution<float> uni_distribution(-configs.m_mean, configs.m_mean);
 			for (size_t i = 0; i < configs.m_NumberOfParticles; i++) {
 				m_module[i] = uni_distribution(generator);
 			}

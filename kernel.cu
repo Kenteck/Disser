@@ -73,6 +73,7 @@ struct integrate_functor
             
             float2 posTMP = pos + vel * dtPart;
             float2 velTMP = vel;
+            float HypotVelocity = length(vel);
 
             float2 normal = -posTMP / params.m_radius;
 
@@ -83,9 +84,12 @@ struct integrate_functor
             vel = velPart;
 
             pos = posTMP + vel * dtPart;
+            
+            vel = (vel / length(vel)) * HypotVelocity; // comepnsation of the float multiplication
         }
 
         // store new position and velocity
+        
         thrust::get<0>(t) = pos;
         thrust::get<1>(t) = vel;
     }
@@ -305,11 +309,13 @@ float2 collideCell(int2 gridPos,
         uint endIndex = cellEnd[gridHash];
 
         for (uint j = startIndex; j < endIndex; j++)
-        {           
-            float dist = length(oldPos[j] - oldPos[index]);
-            if (dist <= params.m_interactionDistance) {
-                float Hypot = length(oldVel[j]);
-                force += oldVel[j] / Hypot;
+        {
+            if (index != j) {
+                float dist = length(oldPos[j] - oldPos[index]);
+                if (dist <= params.m_interactionDistance) {
+                    float Hypot = length(oldVel[j]);
+                    force += oldVel[j] / Hypot;
+                }
             }
         }
     }
@@ -343,7 +349,7 @@ void collideD(float2* newVel,               // output: new velocity
 
     // examine neighbouring cells
     float2 force = make_float2(0.0f, 0.0f);
-
+    
     for (int y = -1; y <= 1; y++)
     {
         for (int x = -1; x <= 1; x++)
@@ -352,31 +358,29 @@ void collideD(float2* newVel,               // output: new velocity
             force += collideCell(neighbourPos, index, oldPos, oldVel, cellStart, cellEnd);
         }
     }
-
-    if (length(force) > 1e-5) { 
-        force.x += params.m_noice * (1 - 2 * ((float)curand_normal(&states[index])));
-        force.y += params.m_noice * (1 - 2 * ((float)curand_normal(&states[index])));
+    
+    if (length(force) > 1e-5) {
+        force.x += params.m_noice * (1 - 2 * (curand_normal(&states[index])));
+        force.y += params.m_noice * (1 - 2 * (curand_normal(&states[index])));
         float HypotForce = length(force);
-        
-        float2 Ort= force / HypotForce;
+
+        float2 Ort = force / HypotForce;
 
         float HypotVelocity = length(vel);
 
         vel = Ort * HypotVelocity;
     }
-    else {
+    else 
+    {
         float HypotVelocity = length(vel);
 
-        vel.x += params.m_noice * (1 - 2 * ((float)curand_normal(&states[index])));
-        vel.y += params.m_noice * (1 - 2 * ((float)curand_normal(&states[index])));
-        
-        float HypotForce = length(force);
+        vel.x += params.m_noice * (1 - 2 * (curand_normal(&states[index])));
+        vel.y += params.m_noice * (1 - 2 * (curand_normal(&states[index])));
 
+        float HypotForce = length(vel);
         float2 Ort = vel / HypotForce;
-
         vel = Ort * HypotVelocity;
     }
-
     // write new velocity back to original unsorted location
     uint originalIndex = gridParticleIndex[index];
     newVel[originalIndex] = vel;

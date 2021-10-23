@@ -62,7 +62,7 @@ void app::InitCamera()
 
     float ratio = W_WIDTH * 1.0 / W_HEIGHT;
 
-    gluPerspective(60.0f, ratio, 0.1f, 100.0f);
+    gluPerspective(60.0f, ratio, 0.1f, 190.0f);
     glViewport(0, 0, W_WIDTH, W_HEIGHT);
 
     
@@ -107,7 +107,7 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glLoadIdentity();
-    glTranslatef(0.0f, 0.0f, -50.0f);
+    glTranslatef(0.0f, 0.0f, -175.0f);
     
     ring->Render();
     particles->Render();
