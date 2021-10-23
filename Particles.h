@@ -33,7 +33,6 @@ class Particles
     uint* m_dCellStart;        // index of start of each cell in sorted list
     uint* m_dCellEnd;          // index of end of cell
 
-    uint* m_hParticleHash;
     uint* m_hCellStart;
     uint* m_hCellEnd;
 

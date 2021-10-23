@@ -159,7 +159,7 @@ void calcHash(uint* gridParticleHash,
     uint    numParticles)
 {
     uint numThreads, numBlocks;
-    computeGridSize(numParticles, 256, numBlocks, numThreads);
+    computeGridSize(numParticles, 1024, numBlocks, numThreads);
     
     // execute the kernel
     calcHashD << < numBlocks, numThreads >> > (gridParticleHash,

@@ -1,5 +1,4 @@
 #include <windows.h>
-#include "cuda_func.h"
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 #include "configs.h"

@@ -99,7 +99,6 @@
   <ItemGroup>
     <ClInclude Include="app.h" />
     <ClInclude Include="configs.h" />
-    <ClInclude Include="cuda_func.h" />
     <ClInclude Include="cuda_helper_functions.cu" />
     <ClInclude Include="helper_math.h" />
     <ClInclude Include="kernel.cuh" />

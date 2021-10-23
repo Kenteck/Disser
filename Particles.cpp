@@ -142,7 +142,6 @@ void Particles::fillColors()
 	for (uint i = 0; i < configs.m_NumberOfParticles; i++)
 	{
 		// The faster particles are red, the slower are blue
- 		//data[3 * i] = hypot(m_velocity[2 * i], m_velocity[2 * i + 1]) / local_max;
 		data[3 * i] = (m_module[i] - local_min) / (local_max - local_min);
 		data[3 * i + 1] = 0.1f;
 		data[3 * i + 2] = 1.0f - data[3 * i];
@@ -262,5 +261,24 @@ void Particles::SetArray(ParticleArray array, const float* data, int start, int 
 
 Particles::~Particles()
 {
+	delete[] m_vertices;
+	delete[] m_velocity;
+	delete[] m_module;
+	delete[] m_colors;
+	delete[] m_hCellStart;
+	delete[] m_hCellEnd;
 
+	freeArray(m_dVel);
+	freeArray(m_dSortedPos);
+	freeArray(m_dSortedVel);
+
+	freeArray(m_dGridParticleHash);
+	freeArray(m_dGridParticleIndex);
+	freeArray(m_dCellStart);
+	freeArray(m_dCellEnd);
+
+	unregisterGLBufferObject(m_cuda_colorvbo_resource);
+	unregisterGLBufferObject(m_cuda_posvbo_resource);
+	glDeleteBuffers(1, (const GLuint*)&VBO);
+	glDeleteBuffers(1, (const GLuint*)&colorVBO);
 }
