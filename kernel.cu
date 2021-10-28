@@ -323,7 +323,6 @@ float2 collideCell(int2 gridPos,
     return force;
 }
 
-
 __global__
 void collideD(float2* newVel,               // output: new velocity
     float2* oldPos,               // input: sorted positions
@@ -349,7 +348,7 @@ void collideD(float2* newVel,               // output: new velocity
 
     // examine neighbouring cells
     float2 force = make_float2(0.0f, 0.0f);
-    
+
     for (int y = -1; y <= 1; y++)
     {
         for (int x = -1; x <= 1; x++)
@@ -358,7 +357,7 @@ void collideD(float2* newVel,               // output: new velocity
             force += collideCell(neighbourPos, index, oldPos, oldVel, cellStart, cellEnd);
         }
     }
-    
+
     if (length(force) > 1e-5) {
         force.x += params.m_noice * (1 - 2 * (curand_normal(&states[index])));
         force.y += params.m_noice * (1 - 2 * (curand_normal(&states[index])));
@@ -378,7 +377,9 @@ void collideD(float2* newVel,               // output: new velocity
         vel.y += params.m_noice * (1 - 2 * (curand_normal(&states[index])));
 
         float HypotForce = length(vel);
+
         float2 Ort = vel / HypotForce;
+
         vel = Ort * HypotVelocity;
     }
     // write new velocity back to original unsorted location

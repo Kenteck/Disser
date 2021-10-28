@@ -45,7 +45,7 @@ void Particles::InitVelocities()
 	{
 		case Configuration::VelocityDistribution::UNIFORM:
 		{
-			std::uniform_real_distribution<float> uni_distribution(-configs.m_mean, configs.m_mean);
+			std::uniform_real_distribution<float> uni_distribution(0, 2 * configs.m_mean);
 			for (size_t i = 0; i < configs.m_NumberOfParticles; i++) {
 				m_module[i] = uni_distribution(generator);
 			}
@@ -138,7 +138,7 @@ void Particles::fillColors()
 
 	glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
 	float* data = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-
+	
 	for (uint i = 0; i < configs.m_NumberOfParticles; i++)
 	{
 		// The faster particles are red, the slower are blue
@@ -165,9 +165,7 @@ void Particles::Render()
 	Move();
 
 	glColor3f(1, 1, 1);
-	glPointSize(configs.m_pointSize);
-	
-	//glUseProgram(particleShaderProgram);
+
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexPointer(2, GL_FLOAT, 0, 0);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -176,6 +174,7 @@ void Particles::Render()
 	glColorPointer(3, GL_FLOAT, 0, 0);
 	glEnableClientState(GL_COLOR_ARRAY);
 
+	glPointSize(configs.m_pointSize);
 	glDrawArrays(GL_POINTS, 0, configs.m_NumberOfParticles);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
