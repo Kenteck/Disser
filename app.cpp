@@ -95,6 +95,7 @@ void keyboardfunc(unsigned char key, int /*x*/, int /*y*/)
         case '\033':
         case 'q':
             glutDestroyWindow(glutGetWindow());
+            particles->Dump();
             return;
     }
     log_glut->LogInfo(std::string("The key: ") + std::string(reinterpret_cast<char*>(&key)) + std::string(" was pressed"));

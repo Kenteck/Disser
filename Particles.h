@@ -7,6 +7,8 @@
 #include "configs.h"
 #include <curand_kernel.h>
 #include <random>
+#include <fstream>
+
 class Particles
 {
 
@@ -47,6 +49,8 @@ class Particles
         VELOCITY
     };
 
+    std::string m_dmpFile = "ParticlesPos.txt";
+
 public:
     Particles() {}
     Logger* log = Logger::GetLogger();
@@ -60,6 +64,7 @@ public:
     void Render();
     void Move();
     void SetArray(ParticleArray, const float*, int, int);
+    void Dump();
     ~Particles();
 };
 
@@ -68,6 +73,7 @@ extern "C" void allocateArray(void** devPtr, size_t size);
 extern "C" void freeArray(void* devPtr);
 extern "C" void threadSync();
 extern "C" void copyArrayToDevice(void* device, const void* host, int offset, int size);
+extern "C" void copyArrayFromDevice(void* , const void* , struct cudaGraphicsResource** , int);
 extern "C" void registerGLBufferObject(unsigned int vbo, struct cudaGraphicsResource** cuda_vbo_resource);
 extern "C" void unregisterGLBufferObject(struct cudaGraphicsResource* cuda_vbo_resource);
 extern "C" void* mapGLBufferObject(struct cudaGraphicsResource** cuda_vbo_resource);

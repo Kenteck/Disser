@@ -401,7 +401,7 @@ void collide(float* newVel,
 
     // thread per particle
     uint numThreads, numBlocks;
-    computeGridSize(numParticles, 1024, numBlocks, numThreads);
+    computeGridSize(numParticles, 512, numBlocks, numThreads);
 
     // execute the kernel
     collideD << < numBlocks, numThreads >> > ((float2*)newVel,

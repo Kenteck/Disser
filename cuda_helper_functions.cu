@@ -61,6 +61,15 @@ extern "C"
         checkCudaErrors(cudaMemcpy((char*)device + offset, host, size, cudaMemcpyHostToDevice));
     }
 
+    void copyArrayFromDevice(void *host, const void *device, struct cudaGraphicsResource **cuda_vbo_resource, int size)
+    {
+        device = mapGLBufferObject(cuda_vbo_resource);
+
+        checkCudaErrors(cudaMemcpy(host, device, size, cudaMemcpyDeviceToHost));
+
+        unmapGLBufferObject(*cuda_vbo_resource);
+    }
+
     void registerGLBufferObject(uint vbo, struct cudaGraphicsResource** cuda_vbo_resource)
     {
         checkCudaErrors(cudaGraphicsGLRegisterBuffer(cuda_vbo_resource, vbo, cudaGraphicsMapFlagsNone));

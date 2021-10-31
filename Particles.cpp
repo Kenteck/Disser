@@ -2,6 +2,11 @@
 #include "cuda_helper_functions.cu"
 #include "kernel.cuh"
 
+float length(float first, float second)
+{
+	return sqrtf(pow(first, 2) + pow(second, 2));
+}
+
 void Particles::Init()
 {
 	log->LogInfo("Setup Particles");
@@ -33,7 +38,6 @@ void Particles::InitVertices()
 		m_vertices[2 * i] = cbrt((float)rand() / (RAND_MAX)) * configs.m_radius * sinPhi * cosTheta;
 		m_vertices[2 * i + 1] = cbrt((float)rand() / (RAND_MAX)) * configs.m_radius * sinPhi * sinTheta;
 	}
-
 	log->LogInfo("Setup Particles: Vertices: finished");
 }
 
@@ -67,7 +71,6 @@ void Particles::InitVelocities()
 			}
 		}
 	}
-
 	for (int i = 0; i < configs.m_NumberOfParticles; i++) {
 		double phi = 2. * configs.m_PI * ((double)(rand()) / RAND_MAX);
 		m_velocity[2 * i] = m_module[i] * cos(phi);
@@ -137,7 +140,7 @@ void Particles::fillColors()
 	registerGLBufferObject(colorVBO, &m_cuda_colorvbo_resource);
 
 	glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
-	float* data = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+ 	float* data = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 	
 	for (uint i = 0; i < configs.m_NumberOfParticles; i++)
 	{
@@ -258,6 +261,44 @@ void Particles::SetArray(ParticleArray array, const float* data, int start, int 
 	}
 }
 
+void Particles::Dump()
+{
+	copyArrayFromDevice(m_vertices, 0, &m_cuda_posvbo_resource, sizeof(float) * 2 * configs.m_NumberOfParticles);
+
+	std::ofstream file(m_dmpFile, std::ios::trunc);
+	if (file.is_open()) {
+		file << "Distribution type: ";
+		switch (configs.m_typeDistribution) {
+		case Configuration::VelocityDistribution::NORMAL:
+			file << "Normal\n";
+			break;
+		case Configuration::VelocityDistribution::UNIFORM:
+			file << "Uniform\n";
+			break;
+		case Configuration::VelocityDistribution::POISSON:
+			file << "Poisson\n";
+			file.close();
+		}
+		file << "Number of particles: " << configs.m_NumberOfParticles << std::endl;
+		file << "Number of circles: " << configs.m_numberOfCircles << std::endl;
+		float minDist, maxDist;
+		for (int circle = 0; circle < configs.m_numberOfCircles; circle++) {
+			minDist = (configs.m_radius / configs.m_numberOfCircles) * circle;
+			maxDist = (configs.m_radius / configs.m_numberOfCircles) * (circle + 1);
+			int particlesCount = 0;
+
+			for (int particle = 0; particle < configs.m_NumberOfParticles; particle++) {
+				float dist = length(m_vertices[2 * particle], m_vertices[2 * particle + 1]);
+				if (((minDist < dist) && (maxDist >= dist)) || ((circle+1 == configs.m_numberOfCircles) && (minDist < dist)))
+					particlesCount++;
+			}
+
+			file << "Circle " << circle + 1 << ": " << particlesCount << std::endl;
+		}
+	}
+	log->LogInfo("Particle data dumped");
+}
+
 Particles::~Particles()
 {
 	delete[] m_vertices;
@@ -275,7 +316,6 @@ Particles::~Particles()
 	freeArray(m_dGridParticleIndex);
 	freeArray(m_dCellStart);
 	freeArray(m_dCellEnd);
-
 	unregisterGLBufferObject(m_cuda_colorvbo_resource);
 	unregisterGLBufferObject(m_cuda_posvbo_resource);
 	glDeleteBuffers(1, (const GLuint*)&VBO);
