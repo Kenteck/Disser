@@ -95,6 +95,7 @@ void Particles::InitCUDA()
 	registerGLBufferObject(VBO, &m_cuda_posvbo_resource);
 
 	allocateArray((void**)&m_dVel, memSize);
+	allocateArray((void**)&m_dMomentum, sizeof(float) * configs.m_NumberOfParticles);
 
 	m_hCellStart = new uint[configs.m_numGridCells];
 	memset(m_hCellStart, 0, configs.m_numGridCells * sizeof(uint));
@@ -185,11 +186,17 @@ void Particles::Render()
 	glDisableClientState(GL_COLOR_ARRAY);
 
 	glUseProgram(0);
+
+	if (m_expFinish) {
+		glutDestroyWindow(glutGetWindow());
+		glutPostRedisplay();
+	}
 }
 
 void Particles::Move()
 {
 	float* dPos;
+	float currentResult = 0;
 
 	dPos = (float*)mapGLBufferObject(&m_cuda_posvbo_resource);
 
@@ -235,7 +242,26 @@ void Particles::Move()
 		configs.m_NumberOfParticles,
 		configs.m_numGridCells,
 		m_dRandom);
+	 
+	// calculate momentum of the System
+	
+	currentResult = integrateMomentumOfSystem(
+						dPos,
+						m_dVel,
+						m_dMomentum,
+						configs.m_NumberOfParticles);
 
+	
+	if (abs(currentResult - m_previousResult) < currentResult * 0.01) {
+		if (++m_momentumCounter >= 50)
+			m_expFinish = true; 
+	}
+	else {
+		m_momentumCounter = 0;
+	}
+
+
+	m_previousResult = currentResult;
 
 	unmapGLBufferObject(m_cuda_posvbo_resource);
 }

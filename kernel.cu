@@ -105,6 +105,38 @@ void integrateSystem(float* pos, float* vel, float deltaTime, uint numParticles)
         integrate_functor(deltaTime));
 }
 
+struct momentum_functor
+{
+    template <typename Tuple>
+    __device__
+        void operator()(Tuple t)
+    {
+        volatile float2 posData = thrust::get<0>(t);
+        volatile float2 velData = thrust::get<1>(t);
+        volatile float momentumData = thrust::get<2>(t);
+        
+        float2 pos = make_float2(posData.x, posData.y);
+        float2 vel = make_float2(velData.x, velData.y);
+
+        float momentum = pos.x * vel.y - pos.y * vel.x;;
+
+        thrust::get<2>(t) = momentum;
+    }
+};
+
+float integrateMomentumOfSystem(float* pos, float* vel, float* momentum, uint numParticles)
+{
+    thrust::device_ptr<float2> d_pos((float2*)pos);
+    thrust::device_ptr<float2> d_vel((float2*)vel);
+    thrust::device_ptr<float> d_momentum((float*)momentum);
+    thrust::for_each(
+        thrust::make_zip_iterator(thrust::make_tuple(d_pos, d_vel, d_momentum)),
+        thrust::make_zip_iterator(thrust::make_tuple(d_pos + numParticles, d_vel + numParticles, d_momentum + numParticles)),
+        momentum_functor());
+    return thrust::reduce(d_momentum, d_momentum + numParticles, 0);;
+}
+
+
 //Round a / b to nearest higher integer value
 uint iDivUp(uint a, uint b)
 {
@@ -401,7 +433,7 @@ void collide(float* newVel,
 
     // thread per particle
     uint numThreads, numBlocks;
-    computeGridSize(numParticles, 512, numBlocks, numThreads);
+    computeGridSize(numParticles, 1024 , numBlocks, numThreads);
 
     // execute the kernel
     collideD << < numBlocks, numThreads >> > ((float2*)newVel,
@@ -417,3 +449,5 @@ void collide(float* newVel,
     getLastCudaError("Kernel execution failed");
 
 }
+
+

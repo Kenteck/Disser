@@ -22,9 +22,14 @@ class Particles
     float local_max = -configs.m_mean;
     float local_min = configs.m_mean;
 
+    int m_momentumCounter = 0;
+    float m_previousResult = 0;
+    bool m_expFinish = false;
+
     //GPU data
     float* m_dVel;
     float* m_dPos;
+    float* m_dMomentum;
 
     struct cudaGraphicsResource* m_cuda_posvbo_resource; // handles OpenGL-CUDA exchange
     struct cudaGraphicsResource* m_cuda_colorvbo_resource;
