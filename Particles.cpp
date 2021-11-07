@@ -253,6 +253,7 @@ void Particles::Move()
 
 	
 	if (abs(currentResult - m_previousResult) < currentResult * 0.01) {
+		++m_momentumCounter;
 		if (++m_momentumCounter >= 50)
 			m_expFinish = true; 
 	}
@@ -315,13 +316,14 @@ void Particles::Dump()
 
 			for (int particle = 0; particle < configs.m_NumberOfParticles; particle++) {
 				float dist = length(m_vertices[2 * particle], m_vertices[2 * particle + 1]);
-				if (((minDist < dist) && (maxDist >= dist)) || ((circle+1 == configs.m_numberOfCircles) && (minDist < dist)))
+				if (((minDist < dist) && (maxDist >= dist)) || ((circle + 1 == configs.m_numberOfCircles) && (minDist < dist)))
 					particlesCount++;
 			}
 
 			file << "Circle " << circle + 1 << ": " << particlesCount << std::endl;
 		}
 	}
+
 	log->LogInfo("Particle data dumped");
 }
 

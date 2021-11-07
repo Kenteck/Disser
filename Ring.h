@@ -2,6 +2,9 @@
 #include "configs.h"
 #include "Logger.h"
 #include "Shader.h"
+
+extern Configuration configs;
+
 class Ring
 {
 	unsigned int ringShaderProgram;

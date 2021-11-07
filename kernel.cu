@@ -16,9 +16,6 @@ namespace cg = cooperative_groups;
 
 typedef unsigned int uint;
 
-// simulation parameters in constant memory
-__constant__ struct Configuration params;
-
 // This will output the proper error string when calling cudaGetLastError
 #define getLastCudaError(msg) __getLastCudaError(msg, __FILE__, __LINE__)
 static const char* _cudaGetErrorEnum(cudaError_t error) {
@@ -48,6 +45,9 @@ inline void __getLastCudaError(const char* errorMessage, const char* file,
         exit(EXIT_FAILURE);
     }
 }
+
+// simulation parameters in constant memory
+__device__ __constant__ struct Configuration params;
 
 struct integrate_functor
 {
@@ -118,7 +118,7 @@ struct momentum_functor
         float2 pos = make_float2(posData.x, posData.y);
         float2 vel = make_float2(velData.x, velData.y);
 
-        float momentum = pos.x * vel.y - pos.y * vel.x;;
+        float momentum = pos.x * vel.y - pos.y * vel.x;
 
         thrust::get<2>(t) = momentum;
     }
@@ -433,7 +433,7 @@ void collide(float* newVel,
 
     // thread per particle
     uint numThreads, numBlocks;
-    computeGridSize(numParticles, 1024 , numBlocks, numThreads);
+    computeGridSize(numParticles, 256, numBlocks, numThreads);
 
     // execute the kernel
     collideD << < numBlocks, numThreads >> > ((float2*)newVel,
@@ -450,4 +450,8 @@ void collide(float* newVel,
 
 }
 
-
+void setParameters(Configuration* hostParams)
+{
+    // copy parameters to constant memory
+    checkCudaErrors(cudaMemcpyToSymbol(params, hostParams, sizeof(Configuration)));
+}

@@ -2,10 +2,13 @@
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 #include "configs.h"
+#include "kernel.cuh"
 
+#ifdef __DRIVER_TYPES_H__
 static const char* _cudaGetErrorEnum(cudaError_t error) {
     return cudaGetErrorName(error);
 }
+#endif
 
 template <typename T>
 void check(T result, char const* const func, const char* const file,
@@ -22,6 +25,8 @@ void check(T result, char const* const func, const char* const file,
 
 extern "C"
 {
+    extern __constant__ struct Configuration params;
+
     void cudaInit()
     {
         int devID = 0;
@@ -33,8 +38,7 @@ extern "C"
 
         if (device_count == 0) {
             fprintf(stderr,
-                "gpuGetMaxGflopsDeviceId() CUDA error:"
-                " no devices supporting CUDA.\n");
+                "gpuGetMaxGflopsDeviceId() CUDA error: no devices supporting CUDA.\n");
         }
 
         checkCudaErrors(cudaSetDevice(devID)); // Set the firts available device
@@ -94,11 +98,4 @@ extern "C"
     {
         checkCudaErrors(cudaGraphicsUnmapResources(1, &cuda_vbo_resource, 0));
     }
-    
-    void setParameters(Configuration* hostParams)
-    {
-        // copy parameters to constant memory
-        cudaMemcpyToSymbol("params", hostParams, sizeof(Configuration));
-    }
-    
 }

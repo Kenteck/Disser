@@ -21,11 +21,11 @@ struct Configuration
 	const int m_coeff = 1;
 	const float dt = m_coeff * 1.0f / 30.0f;
 	const float m_pointSize = 1.5f;
-	const float m_interactionDistance = 10.0f;
+	const float m_interactionDistance = 8.0f;
 	const float m_noice = 2.0f;
 	const int m_typeDistribution = VelocityDistribution::NORMAL;
-	const float m_sttDev = 8.0f;
-	const float m_mean = 15.0f;
+	const float m_sttDev = 5.0f;
+	const float m_mean = 10.0f;
 	
 	// Performance parameteres
 	const float m_sizeOfCell = m_interactionDistance;
@@ -36,4 +36,4 @@ struct Configuration
 	const int m_numberOfCircles = 7;
 };
 
-static Configuration configs;
+extern Configuration configs;

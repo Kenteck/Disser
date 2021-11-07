@@ -9,9 +9,10 @@
 #include <random>
 #include <fstream>
 
+extern Configuration configs;
+
 class Particles
 {
-
     unsigned int VAO, VBO, colorVBO;
     unsigned int particleShaderProgram = NULL;
     float* m_vertices = new float[configs.m_NumberOfParticles * 2];

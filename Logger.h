@@ -3,6 +3,7 @@
 #include <string>
 #include <stdarg.h>
 #include <filesystem>
+
 class Logger
 {
 	enum class Severity {

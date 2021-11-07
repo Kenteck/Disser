@@ -13,4 +13,6 @@ extern "C"
     void collide(float* newVel, float* sortedPos, float* sortedVel, uint* gridParticleIndex, uint* cellStart, uint* cellEnd, uint numParticles, uint numCells, curandState* states);
 
     float integrateMomentumOfSystem(float* pos, float* vel, float* momentum, uint numParticles);
+
+    void setParameters(Configuration* hostParams);
 }
