@@ -253,17 +253,14 @@ void Particles::Move()
 						configs.m_NumberOfParticles);
 
 	
-	if (abs(currentResult - m_previousResult) < currentResult * 0.01) {
-		++m_momentumCounter;
-		if (++m_momentumCounter >= 50)
+	if (abs(currentResult - m_previousResult) < currentResult * 0.1) {
+		if (++m_momentumCounter >= 250)
 			m_expFinish = true; 
 	}
 	else {
 		m_momentumCounter = 0;
+		m_previousResult = currentResult;
 	}
-
-
-	m_previousResult = currentResult;
 
 	unmapGLBufferObject(m_cuda_posvbo_resource);
 }
