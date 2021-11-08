@@ -14,6 +14,7 @@
 
 class app
 {
+
 	void InitGL(int* argc, char** argv);
 	void InitGlut(int* argc, char** argv);
 	void InitGlew();
@@ -24,6 +25,8 @@ class app
 
 public:
 	void init(int* argc, char** argv) {
+		if (*argc > 1)
+			setConfig(argc, argv);
 		log->Init();
 		InitGL(argc, argv);
 		InitCamera();

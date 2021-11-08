@@ -52,6 +52,9 @@ class Particles
 
     curandState* m_dRandom;
 
+    std::clock_t start = std::clock();
+    const float duration = 10 * 60;  // Max seconds of simulation
+
     enum ParticleArray
     {
         POSITION,
@@ -73,6 +76,9 @@ public:
     void Render();
     void Move();
     void SetArray(ParticleArray, const float*, int, int);
+    void checkMomentum(float currentMomentum);
+    void checkTime();
+    void savePicture();
     void Dump();
     ~Particles();
 };

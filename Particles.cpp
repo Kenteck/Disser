@@ -252,15 +252,9 @@ void Particles::Move()
 						m_dMomentum,
 						configs.m_NumberOfParticles);
 
-	
-	if (abs(currentResult - m_previousResult) < currentResult * 0.1) {
-		if (++m_momentumCounter >= 250)
-			m_expFinish = true; 
-	}
-	else {
-		m_momentumCounter = 0;
-		m_previousResult = currentResult;
-	}
+	checkMomentum(currentResult);
+
+	checkTime();
 
 	unmapGLBufferObject(m_cuda_posvbo_resource);
 }
@@ -286,6 +280,24 @@ void Particles::SetArray(ParticleArray array, const float* data, int start, int 
 	}
 }
 
+void Particles::checkMomentum(float currentMomentum)
+{
+	if (abs(currentMomentum - m_previousResult) < currentMomentum * 0.1) {
+		if (++m_momentumCounter >= 200)
+			m_expFinish = true;
+	}
+	else {
+		m_momentumCounter = 0;
+		m_previousResult = currentMomentum;
+	}
+}
+
+void Particles::checkTime()
+{
+	if (((std::clock() - start) / CLOCKS_PER_SEC) > duration)
+		m_expFinish = true;
+}
+
 void Particles::Dump()
 {
 	copyArrayFromDevice(m_vertices, 0, &m_cuda_posvbo_resource, sizeof(float) * 2 * configs.m_NumberOfParticles);
@@ -306,6 +318,9 @@ void Particles::Dump()
 		}
 		file << "Number of particles: " << configs.m_NumberOfParticles << std::endl;
 		file << "Number of circles: " << configs.m_numberOfCircles << std::endl;
+		file << "Try Number: " << configs.m_tryNumber << std::endl;
+		file << "Mean: " << configs.m_mean << std::endl;
+		file << "SttDev: " << configs.m_sttDev << std::endl;
 		float minDist, maxDist;
 		for (int circle = 0; circle < configs.m_numberOfCircles; circle++) {
 			minDist = (configs.m_radius / configs.m_numberOfCircles) * circle;
@@ -321,7 +336,13 @@ void Particles::Dump()
 			file << "Circle " << circle + 1 << ": " << particlesCount << std::endl;
 		}
 	}
+	savePicture();
 
+	log->LogInfo("Particle data dumped");
+}
+
+void Particles::savePicture()
+{
 	GLint viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
@@ -335,15 +356,12 @@ void Particles::Dump()
 	if (!data)
 		throw "Overflow";
 
-
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
 
-	int saved = stbi_write_png("test.png", width, height, 3, data, 0);
+	int saved = stbi_write_png("Picture.png", width, height, 3, data, 0);
 
 	free(data);
-
-	log->LogInfo("Particle data dumped");
 }
 
 Particles::~Particles()

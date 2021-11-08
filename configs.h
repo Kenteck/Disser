@@ -1,5 +1,7 @@
 #pragma once
 #include "vector_types.h"
+#include <stdlib.h>
+
 typedef unsigned int uint;
 
 struct Configuration
@@ -21,11 +23,11 @@ struct Configuration
 	const int m_coeff = 1;
 	const float dt = m_coeff * 1.0f / 30.0f;
 	const float m_pointSize = 1.5f;
-	const float m_interactionDistance = 10.0f;
-	const float m_noice = 0.5f;
-	const int m_typeDistribution = VelocityDistribution::NORMAL;
-	const float m_sttDev = 5.0f;
-	const float m_mean = 15.0f;
+	float m_interactionDistance = 3.0f;
+	float m_noice = 1.0f;
+	int m_typeDistribution = VelocityDistribution::NORMAL;
+	float m_sttDev = 5.0f;
+	float m_mean = 15.0f;
 	
 	// Performance parameteres
 	const float m_sizeOfCell = m_interactionDistance;
@@ -33,7 +35,10 @@ struct Configuration
 	const int m_numGridCells = m_gridSize * m_gridSize;
 
 	// Dump parameters
-	const int m_numberOfCircles = 7;
+	const int m_numberOfCircles = 10;
+	int m_tryNumber = 0;
 };
+
+void setConfig(int* argc, char** argv);
 
 extern Configuration configs;
