@@ -36,8 +36,8 @@ void Particles::InitVertices()
 		float cosTheta = cos(theta);
 		float sinPhi = sin(phi);
 		//Random coordinates within sphere
-		m_vertices[2 * i] = cbrt((float)rand() / (RAND_MAX)) * configs.m_radius * sinPhi * cosTheta;
-		m_vertices[2 * i + 1] = cbrt((float)rand() / (RAND_MAX)) * configs.m_radius * sinPhi * sinTheta;
+		m_vertices[2 * i] = cbrt((float)rand() / (RAND_MAX)) * (configs.m_radius / 4) * sinPhi * cosTheta;
+		m_vertices[2 * i + 1] = cbrt((float)rand() / (RAND_MAX)) * (configs.m_radius / 4) * sinPhi * sinTheta;
 	}
 	log->LogInfo("Setup Particles: Vertices: finished");
 }
@@ -283,7 +283,7 @@ void Particles::SetArray(ParticleArray array, const float* data, int start, int 
 void Particles::checkMomentum(float currentMomentum)
 {
 	if (abs(currentMomentum - m_previousResult) < currentMomentum * 0.1) {
-		if (++m_momentumCounter >= 200)
+		if (++m_momentumCounter >= 1000)
 			m_expFinish = true;
 	}
 	else {
@@ -351,7 +351,7 @@ void Particles::savePicture()
 	int width = viewport[2];
 	int height = viewport[3];
 
-	char* data = (char*)malloc((size_t)(width * height * 3)); // 3 components (R, G, B)
+	char* data = (char*)malloc((size_t)((size_t)width * (size_t)height * 3)); // 3 components (R, G, B)
 
 	if (!data)
 		throw "Overflow";

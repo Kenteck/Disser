@@ -19,15 +19,15 @@ struct Configuration
 	const float m_PI = 3.1415926f;
 
 	// Particles behavior parameters
-	const unsigned long m_NumberOfParticles = 100000;
+	const unsigned long m_NumberOfParticles = 200000;
 	const int m_coeff = 1;
 	const float dt = m_coeff * 1.0f / 30.0f;
 	const float m_pointSize = 1.5f;
-	float m_interactionDistance = 3.0f;
-	float m_noice = 1.0f;
+	float m_interactionDistance = 15.0f;
+	float m_noice = 6.0f;
 	int m_typeDistribution = VelocityDistribution::NORMAL;
-	float m_sttDev = 5.0f;
-	float m_mean = 15.0f;
+	float m_sttDev = 10.0f;
+	float m_mean = 20.0f;
 	
 	// Performance parameteres
 	const float m_sizeOfCell = m_interactionDistance;
